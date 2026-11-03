@@ -7,7 +7,7 @@ import {selectorhub} from "../../pages/iframe";
 import { brokenlinks} from "../../pages/brokenlinks";
 import { ProductDescriptionPage } from "../../pages/proddesc";
 import { ProductSareeHomePage } from "../../pages/product_saree_homePge";
-
+import { droppable } from "../../pages/droppable";
 
 type Fixtures={
     utils:Utils
@@ -18,6 +18,7 @@ type Fixtures={
     brokenlink:brokenlinks
     productdescr:ProductDescriptionPage
     productsaree:ProductSareeHomePage
+    download:droppable
 }
 export const test=base.extend<Fixtures>({
     utils:async({page},use)=>{
@@ -43,8 +44,11 @@ export const test=base.extend<Fixtures>({
     brokenlink:async({page},use)=>{
         const brokenlink= new brokenlinks(page)
         await use(brokenlink)
+    },
+    download:async({page},use)=>{
+        const download= new droppable(page)
+        await use(download)
     }
-    
     
 })
 
