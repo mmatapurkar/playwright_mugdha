@@ -1,22 +1,136 @@
-name: Playwright Tests
+name: Playwright Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      TEST_TYPE:
+        description: 'Select test execution type'
+        required: true
+        type: choice
+        options:
+          - ALL
+          - FILE
+          - GREP
+        default: ALL
+
+      TEST_VALUE:
+        description: 'Test file path, test name, or grep tag'
+        required: false
+        type: string
+        default: ''
+
+      BROWSER:
+        description: 'Select Browser'
+        required: true
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+        default: chromium
+
+      
 jobs:
-  test:
-    timeout-minutes: 60
+  playwright-tests:
+    name: Playwright Test Execution
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+       
+      BROWSER: ${{ inputs.BROWSER }}
+    
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      # 1. Checkout repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Install Playwright browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps $BROWSER
+
+      
+      # 6. Execute selected Playwright tests
+      - name: Run Playwright Tests
+        shell: bash
+        env:
+          TEST_TYPE: ${{ inputs.TEST_TYPE }}
+          TEST_VALUE: ${{ inputs.TEST_VALUE }}
+        run: |
+          set -euo pipefail
+
+          case "$TEST_TYPE" in
+
+            ALL)
+              echo "Running all Playwright tests"
+              npx playwright test
+              ;;
+
+            FILE)
+              if [[ -z "$TEST_VALUE" ]]; then
+                echo "ERROR: Test file path is required"
+                exit 1
+              fi
+
+              if [[ ! -f "$TEST_VALUE" ]]; then
+                echo "ERROR: Test file not found: $TEST_VALUE"
+                exit 1
+              fi
+
+              echo "Running specific test file: $TEST_VALUE"
+              npx playwright test "$TEST_VALUE"
+              ;;
+
+            GREP)
+              if [[ -z "$TEST_VALUE" ]]; then
+                echo "ERROR: Grep pattern is required"
+                exit 1
+              fi
+
+              echo "Running tests matching: $TEST_VALUE"
+              npx playwright test --grep "$TEST_VALUE"
+              ;;
+
+            *)
+              echo "ERROR: Invalid TEST_TYPE"
+              exit 1
+              ;;
+          esac
+
+      # 7. Generate Playwright report
+      - name: Generate Playwright Report
+        if: always()
+        run: |
+          echo "Playwright execution completed"
+
+      # 8. Upload Playwright HTML report
+      - name: Upload Playwright HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 15
+
+      # 9. Upload test results
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ github.run_number }}
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 15
