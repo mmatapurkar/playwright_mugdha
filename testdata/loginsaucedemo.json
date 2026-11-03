@@ -1,0 +1,19 @@
+[
+ {
+"id":"user1",
+"url":"https://www.saucedemo.com/",
+"username":"standard_user",
+"password":"secret_sauce"
+ },
+ {
+"id":"user2",
+"url":"https://www.saucedemo.com/",
+"username":"locked_out_user",
+"password":"secret_sauce"
+ },
+ {
+"id":"user3",
+"url":"https://www.saucedemo.com/",
+"username":"locked_out_user1",
+"password":"secret_sauce"
+ }]

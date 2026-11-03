@@ -1,0 +1,4 @@
+id,username,url,pwd
+user1,standard_user,https://www.saucedemo.com/,secret_sauce
+user2,locked_out_user,https://www.saucedemo.com/,secret_sauce
+user3,locked_out_user1,https://www.saucedemo.com/,secret_sauce
