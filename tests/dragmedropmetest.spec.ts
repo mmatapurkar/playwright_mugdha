@@ -1,14 +1,10 @@
-import { test,expect } from "@playwright/test";
 import { droppable} from "../pages/droppable"
+import { Fixtures } from "@playwright/test";
+import { test } from "./fixtures/fixtures"; 
 
-import { Utils } from "../pages/utils";
-test("dragdrop", async({page})=>{
- 
-   const downlaodbutton=new droppable(page)
-   const utils=new Utils(page)
+
+test("dragdrop", async({utils,download})=>{
    await utils.launch('https://demoqa.com/droppable')
-   await downlaodbutton.draganddrop()
-   await page.pause()
-
-}
+   await download.draganddrop()
+  }
 )
