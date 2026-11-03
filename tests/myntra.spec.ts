@@ -4,7 +4,6 @@ import{test,expect} from "./fixtures/fixtures";
 import { ProductSareeHomePage } from "../pages/product_saree_homePge";
 import { ProductDescriptionPage } from "../pages/proddesc";
 
-
 test("has multiple products", async({page,utils,brokenlink})=> {
   
    await utils.launch('https://www.myntra.com/saree')
